@@ -23,10 +23,9 @@ To set up the Ad-Server-API on your local machine, follow these steps:
 
 1. Clone the repository: `git clone <repository-url>`
 2. Navigate to the project directory: `cd Ad-Server-API`
-3. Install dependencies: `composer install`
+3. Install dependencies: `npm install`
 4. Configure the database connection in the `.env` file.
-5. Run database migrations: `php artisan migrate`
-6. Start the local server: `php artisan serve`
+5. Start the local server: `npm start`
 
 ## Endpoints
 

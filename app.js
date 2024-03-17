@@ -65,6 +65,7 @@ app.get("/", (req, res) => {
 // If you have more routes, define them similarly
 // Example:
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/advertisers", require("./routes/advertiserRoutes"));
 
 // app.use('/api/campaigns', require('./routes/campaignRoutes'));
 
