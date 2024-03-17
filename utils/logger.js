@@ -1,3 +1,11 @@
+/**
+ * logger.js
+ *
+ * @author Nestor Nathingo <nessynathingo@gmail.com>
+ * @copyright (c) 2024
+ * All rights reserved
+ */
+
 const winston = require("winston");
 const path = require("path");
 
