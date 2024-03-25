@@ -9,15 +9,19 @@
 const mongoose = require("mongoose");
 
 const ZoneSchema = new mongoose.Schema({
-  name: { type: String, required: true },
   publisher: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Publisher",
     required: true,
   },
-  description: String,
-
-  // Additional fields as necessary, e.g., size, allowedTypes, etc.
+  name: String,
+  campaigns: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Campaign",
+    },
+  ],
+  // Add more properties as needed
 });
 
 module.exports = mongoose.model("Zone", ZoneSchema);

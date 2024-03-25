@@ -6,12 +6,22 @@
  * All rights reserved
  */
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const AdvertiserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  contactEmail: { type: String, required: true, unique: true },
-  // Define additional fields as necessary
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  company: { type: String, required: true },
+  website: String, 
+  billingInfo: {
+    address: String,
+    city: String,
+    country: String,
+
+  },
 });
 
-module.exports = mongoose.model('Advertiser', AdvertiserSchema);
+module.exports = mongoose.model("Advertiser", AdvertiserSchema);

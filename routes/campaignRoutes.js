@@ -7,26 +7,45 @@
  */
 
 const express = require("express");
-const router = express.Router();
+const { validateToken, authorizeRole } = require("../middlewares/auth");
 const {
-  listCampaigns,
   createCampaign,
+  getCampaigns,
+  updateCampaign,
+  deleteCampaign,
   connectCampaignToZone,
-  collectImpressions,
-  collectClicks,
+  // serveAd,
 } = require("../controllers/campaignController");
 
-// List campaigns
-router.get("/", listCampaigns);
+const router = express.Router();
 
-// Create a new campaign
-router.post("/", createCampaign);
+// Routes for basic CRUD operations
+router.post("/", [validateToken, authorizeRole("Advertiser")], createCampaign);
+router.get("/", [validateToken, authorizeRole("Advertiser")], getCampaigns);
+router.put(
+  "/:id",
+  [validateToken, authorizeRole("Advertiser")],
+  updateCampaign
+);
+router.delete(
+  "/:id",
+  [validateToken, authorizeRole("Advertiser")],
+  deleteCampaign
+);
 
-// Connect a campaign to a publisher's zone
-router.post("/connect", connectCampaignToZone);
+// Additional route to connect a campaign to a zone
+router.post(
+  "/connect-to-zone",
+  [validateToken, authorizeRole("Advertiser")],
+  connectCampaignToZone
+);
 
-// Collect impressions and clicks
-router.post("/impressions", collectImpressions);
-router.post("/clicks", collectClicks);
+// Optional: Route to serve a preview ad from a campaign for testing (if applicable)
+// This might not align exactly with your ad serving logic, but it's an example if you need it
+// router.get(
+//   "/serve-ad/:campaignId",
+//   [validateToken, authorizeRole("Advertiser")],
+//   serveAd
+// );
 
 module.exports = router;

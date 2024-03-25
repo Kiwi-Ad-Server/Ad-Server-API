@@ -9,14 +9,24 @@
 const mongoose = require("mongoose");
 
 const PlacementSchema = new mongoose.Schema({
-  name: { type: String, required: true },
   campaign: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Campaign",
     required: true,
   },
-  zone: { type: mongoose.Schema.Types.ObjectId, ref: 'Zone' },
-  // Additional fields as necessary, e.g., dimensions, position, etc.
+  zone: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Zone",
+    required: true,
+  },
+  startDate: Date,
+  endDate: Date,
+  status: {
+    type: String,
+    enum: ["active", "inactive", "completed"],
+    default: "active",
+  },
+  // Additional settings like targeting or A/B testing configurations
 });
 
 module.exports = mongoose.model("Placement", PlacementSchema);

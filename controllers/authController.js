@@ -7,25 +7,78 @@
  */
 
 const User = require("../models/User");
+const Advertiser = require("../models/Advertiser");
+const Publisher = require("../models/Publisher");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
 const register = async (req, res) => {
-  const { username, email, password, role } = req.body;
-  try {
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ msg: "User already exists" });
+  const {
+    username,
+    email,
+    password,
+    role,
+    company,
+    website,
+    billingInfo,
+    platformName,
+    websiteUrl,
+    contactName,
+    contactEmail,
+    trafficInfo,
+    paymentInfo,
+    audienceDemographics,
+    platformType,
+  } = req.body;
 
-    user = new User({ username, email, password, role });
-    await user.save();
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    let user = new User({ username, email, password, role });
+    await user.save({ session }); // Save within the transaction
+
+    // For Advertiser: create an advertiser profile within the same transaction
+    if (user.role === "Advertiser") {
+      const advertiser = new Advertiser({
+        user: user._id,
+        company,
+        website,
+        billingInfo,
+      });
+      await advertiser.save({ session });
+    }
+
+    // For Publisher
+    if (user.role === "Publisher") {
+      const publisher = new Publisher({
+        user: user._id,
+        platformName,
+        websiteUrl,
+        contactName,
+        contactEmail,
+        trafficInfo,
+        paymentInfo,
+        audienceDemographics,
+        platformType,
+      });
+      await publisher.save({ session });
+    }
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
 
     const token = jwt.sign(
-      { user: { id: user.id, role: user.role } },
+      { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "5h" }
+      { expiresIn: "1d" }
     );
-    res.json({ message: "Successfully registered!", token });
+    res.status(201).json({ message: "Successfully registered!", token });
   } catch (err) {
+    // Abort the transaction on error
+    await session.abortTransaction();
+    session.endSession();
     console.error(err.message);
     res.status(500).send("Server error");
   }
@@ -34,11 +87,12 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).select("+password");
     if (!user) return res.status(400).json({ msg: "Invalid Credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ msg: "Invalid Credentials" });
+    if (!isMatch || !(await user.comparePassword(password)))
+      return res.status(400).json({ msg: "Invalid Credentials" });
 
     const token = jwt.sign(
       { user: { id: user.id, role: user.role } },

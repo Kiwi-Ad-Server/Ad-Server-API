@@ -1,5 +1,5 @@
 /**
- * userRoutes.js
+ * trackingRoutes.js
  *
  * @author Nestor Nathingo <nessynathingo@gmail.com>
  * @copyright (c) 2024
@@ -7,11 +7,9 @@
  */
 
 const express = require("express");
-const authController = require("../controllers/authController");
-
 const router = express.Router();
+const { logConversion } = require("../controllers/trackingController");
 
-router.post("/register", authController.register);
-router.post("/login", authController.login);
+router.get("/convert/track", logConversion);
 
 module.exports = router;

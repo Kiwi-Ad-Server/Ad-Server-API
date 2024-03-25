@@ -33,17 +33,14 @@ app.use(helmet());
 // Apply the rate limiting middleware to all requests
 app.use(limiter);
 
-// Use cors to enable Cross-Origin Resource Sharing
 app.use(
   cors({
-    origin: "https://example.com", // Allow only this origin to access the API
-    methods: "GET,POST,PUT,DELETE", // Allowed HTTP methods
-    allowedHeaders: "Content-Type,Authorization", // Allowed headers
+    origin: process.env.CORS_ORIGIN || "*",
+    methods: "GET,POST,PUT,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
   })
 );
 
-//Init middleware
-// This allows you to accept JSON data in the body of a request
 app.use(express.json({ extended: false }));
 
 // Logging middleware for incoming requests
@@ -58,16 +55,14 @@ app.get("/", (req, res) => {
   res.send("API Running");
 });
 
+app.use(express.static("public")); // For serving static files from 'public' directory
+
 // Define Routes
-// Uncomment and adjust according to your actual file paths and route setups
-// app.use('/api/auth', require('./routes/authRoutes'));
-
-// If you have more routes, define them similarly
-// Example:
-app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/publishers", require("./routes/publisherRoutes"));
 app.use("/api/advertisers", require("./routes/advertiserRoutes"));
-
-// app.use('/api/campaigns', require('./routes/campaignRoutes'));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/campaigns", require("./routes/campaignRoutes"));
+app.use("/api/ads", require("./routes/adRoutes"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
