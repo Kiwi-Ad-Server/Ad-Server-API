@@ -17,7 +17,7 @@ const PublisherSchema = new mongoose.Schema({
   platformName: { type: String, required: true },
   websiteUrl: { type: String, required: true },
   contactName: String,
-  contactEmail: { type: String, unique: true, sparse: true }, // sparse for optional uniqueness
+  // contactEmail: { type: String, unique: true, sparse: true }, // sparse for optional uniqueness
   trafficInfo: {
     monthlyViews: Number,
     uniqueVisitors: Number,

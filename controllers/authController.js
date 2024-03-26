@@ -13,6 +13,49 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    let user = await User.findOne({ email }).select("+password");
+    if (!user) return res.status(400).json({ msg: "Invalid Credentials" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch || !(await user.comparePassword(password)))
+      return res.status(400).json({ msg: "Invalid Credentials" });
+
+    const token = jwt.sign(
+      { user: { id: user.id, role: user.role } },
+      process.env.JWT_SECRET,
+      { expiresIn: "5h" }
+    );
+
+    req.session.userId = user.id;
+    req.session.role = user.role;
+    req.session.token = token;
+
+    // Return data to the client-side
+    res.json({
+      token,
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send("Server Error");
+  }
+};
+
+// Logout from current session
+const logout = (req, res) => {
+  req.session.destroy(() => {
+    res
+      .clearCookie("connect.sid", { path: "/api/auth" })
+      .json({ msg: "Logged out!" });
+  });
+};
+
 const register = async (req, res) => {
   const {
     username,
@@ -25,7 +68,6 @@ const register = async (req, res) => {
     platformName,
     websiteUrl,
     contactName,
-    contactEmail,
     trafficInfo,
     paymentInfo,
     audienceDemographics,
@@ -56,7 +98,6 @@ const register = async (req, res) => {
         platformName,
         websiteUrl,
         contactName,
-        contactEmail,
         trafficInfo,
         paymentInfo,
         audienceDemographics,
@@ -74,6 +115,10 @@ const register = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+    req.session.token = token;
+    req.session.userId = user._id;
+    req.session.role = user.role;
+
     res.status(201).json({ message: "Successfully registered!", token });
   } catch (err) {
     // Abort the transaction on error
@@ -84,26 +129,4 @@ const register = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    let user = await User.findOne({ email }).select("+password");
-    if (!user) return res.status(400).json({ msg: "Invalid Credentials" });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch || !(await user.comparePassword(password)))
-      return res.status(400).json({ msg: "Invalid Credentials" });
-
-    const token = jwt.sign(
-      { user: { id: user.id, role: user.role } },
-      process.env.JWT_SECRET,
-      { expiresIn: "5h" }
-    );
-    res.json({ message: "Logged in", token });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
-  }
-};
-
-module.exports = { register, login };
+module.exports = { register, login, logout };

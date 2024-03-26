@@ -12,6 +12,9 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const MongoStore = require("connect-mongo");
+const session = require("express-session");
+
 const connectDB = require("./config/db");
 const swaggerDocs = require("./config/swaggerConfig");
 const logger = require("./utils/logger");
@@ -28,6 +31,14 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET, // A secret key for signing the session ID cookie
+    resave: false, // Don't save session if unmodified
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI_DEV }), // Use MongoDB to store session
+    cookie: { secure: process.env.NODE_ENV === "production" }, // Enable secure cookies in production
+  })
+);
 // Use helmet to set various HTTP headers for security
 app.use(helmet());
 // Apply the rate limiting middleware to all requests
