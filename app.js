@@ -71,13 +71,13 @@ app.use(express.static("public")); // For serving static files from 'public' dir
 // Define Routes
 app.use("/api/publishers", require("./routes/publisherRoutes"));
 app.use("/api/advertisers", require("./routes/advertiserRoutes"));
-app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/ads", require("./routes/adRoutes"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  logger.error(`Unhandled error: ${err.message}`);
+  logger.error(`Unhandled error: ${err.message} `, err);
   res.status(500).send("Server Error");
 });
 
