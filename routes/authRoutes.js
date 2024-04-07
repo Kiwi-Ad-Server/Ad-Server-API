@@ -8,19 +8,20 @@
 
 const express = require("express");
 const authController = require("../controllers/authController");
+const { validateToken } = require("../middlewares/auth.js");
+const UserModel = require("../models/User");
 
 const router = express.Router();
 
+UserModel.methods(["get", "put", "delete", "post"]); // Enable all methods for the user model
+UserModel.register(router, "/users");
+
 router.post("/register", authController.register);
 router.post("/login", authController.login);
-router.post("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).send("Could not log out, please try again");
-    }
-    res.send("Logged out successfully");
-  });
-});
+router.put("/update", authController.updateUserById);
+router.delete("/", authController.deleteUserById);
+router.get("/", authController.getUsers);
+router.post("/logout", authController.logout);
 router.get("/some-protected-route", (req, res) => {
   if (req.session.userId) {
     res.send("You are logged in");
@@ -30,5 +31,15 @@ router.get("/some-protected-route", (req, res) => {
 });
 
 router.get("/api/username-check", authController.isUsernameTaken);
+router.get("/validate-session", validateToken, (req, res) => {
+  // If middleware passes, token is valid, and req.user is populated
+  res.json({
+    user: {
+      id: req.user._id,
+      username: req.user.username,
+      role: req.user.role,
+    },
+  });
+});
 
 module.exports = router;

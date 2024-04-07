@@ -6,18 +6,20 @@
  * All rights reserved
  */
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const adItemSchema = new mongoose.Schema({
-  campaign: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Campaign',
-    required: true
+const adItemSchema = new mongoose.Schema(
+  {
+    campaign: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Campaign",
+      required: true,
+    },
+    imageUrl: { type: String, required: true },
+    landingPageUrl: { type: String, required: true },
+    // Additional properties like adType, dimensions, etc.
   },
-  imageUrl: { type: String, required: true },
-  landingPageUrl: { type: String, required: true },
-  // Additional properties like adType, dimensions, etc.
-});
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('AdItem', adItemSchema);
-
+module.exports = mongoose.model("AdItem", adItemSchema);

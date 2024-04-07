@@ -12,7 +12,7 @@ require("dotenv").config();
 
 // Middleware to validate token and attach user to request
 exports.validateToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  const token = req.cookies.token; // Read token from HttpOnly cookie
 
   if (!token) {
     return res
@@ -22,17 +22,15 @@ exports.validateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Retrieve the full user document and attach it to the request
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    req.user = user;
+    req.user = user; // Attach user to request object
+    next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid token" });
   }
-
-  next();
 };
 
 // Middleware to check user role

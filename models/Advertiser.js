@@ -8,20 +8,22 @@
 
 const mongoose = require("mongoose");
 
-const AdvertiserSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const AdvertiserSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    company: { type: String, required: true },
+    website: String,
+    billingInfo: {
+      address: String,
+      city: String,
+      country: String,
+    },
   },
-  company: { type: String, required: true },
-  website: String, 
-  billingInfo: {
-    address: String,
-    city: String,
-    country: String,
-
-  },
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Advertiser", AdvertiserSchema);

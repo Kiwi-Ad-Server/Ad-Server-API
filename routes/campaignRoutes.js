@@ -14,8 +14,10 @@ const {
   updateCampaign,
   deleteCampaign,
   connectCampaignToZone,
+  getCampaignAnalytics,
   // serveAd,
 } = require("../controllers/campaignController");
+const { recordBulkImpressions } = require("../controllers/analyticsController");
 
 const router = express.Router();
 
@@ -32,6 +34,11 @@ router.delete(
   [validateToken, authorizeRole("Advertiser")],
   deleteCampaign
 );
+router.get(
+  "/analytics/:campaignId",
+  [validateToken, authorizeRole("Advertiser")],
+  getCampaignAnalytics
+);
 
 // Additional route to connect a campaign to a zone
 router.post(
@@ -39,6 +46,8 @@ router.post(
   [validateToken, authorizeRole("Advertiser")],
   connectCampaignToZone
 );
+
+router.post("/record-bulk-impressions", recordBulkImpressions);
 
 // Optional: Route to serve a preview ad from a campaign for testing (if applicable)
 // This might not align exactly with your ad serving logic, but it's an example if you need it

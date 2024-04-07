@@ -8,35 +8,38 @@
 
 const mongoose = require("mongoose");
 
-const PublisherSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const PublisherSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    platformName: { type: String, required: true },
+    websiteUrl: { type: String, required: true },
+    contactName: String,
+    // contactEmail: { type: String, unique: true, sparse: true }, // sparse for optional uniqueness
+    trafficInfo: {
+      monthlyViews: Number,
+      uniqueVisitors: Number,
+    },
+    paymentInfo: {
+      method: String,
+      details: String,
+    },
+    audienceDemographics: {
+      ageRange: String,
+      interests: [String],
+      location: String,
+    },
+    platformType: {
+      type: String,
+      enum: ["Blog", "News Site", "Forum", "E-commerce", "Other"],
+      required: true,
+    },
+    // Additional fields as needed
   },
-  platformName: { type: String, required: true },
-  websiteUrl: { type: String, required: true },
-  contactName: String,
-  // contactEmail: { type: String, unique: true, sparse: true }, // sparse for optional uniqueness
-  trafficInfo: {
-    monthlyViews: Number,
-    uniqueVisitors: Number,
-  },
-  paymentInfo: {
-    method: String,
-    details: String,
-  },
-  audienceDemographics: {
-    ageRange: String,
-    interests: [String],
-    location: String,
-  },
-  platformType: {
-    type: String,
-    enum: ["Blog", "News Site", "Forum", "E-commerce", "Other"],
-    required: true,
-  },
-  // Additional fields as needed
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Publisher", PublisherSchema);

@@ -14,7 +14,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const MongoStore = require("connect-mongo");
 const session = require("express-session");
-
+const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const swaggerDocs = require("./config/swaggerConfig");
 const logger = require("./utils/logger");
@@ -23,6 +23,9 @@ const app = express();
 
 // Connect Database
 connectDB();
+
+// Use cookie-parser middleware
+app.use(cookieParser());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -46,12 +49,12 @@ app.use(limiter);
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*",
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    credentials: true,
     methods: "GET,POST,PUT,DELETE",
     allowedHeaders: "Content-Type,Authorization",
   })
 );
-
 app.use(express.json({ extended: false }));
 
 // Logging middleware for incoming requests
@@ -72,6 +75,7 @@ app.use(express.static("public")); // For serving static files from 'public' dir
 app.use("/api/publishers", require("./routes/publisherRoutes"));
 app.use("/api/advertisers", require("./routes/advertiserRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/users", require("./routes/authRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/ads", require("./routes/adRoutes"));
 

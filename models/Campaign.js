@@ -8,30 +8,40 @@
 
 const mongoose = require("mongoose");
 
-const CampaignSchema = new mongoose.Schema({
-  advertiser: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Advertiser",
-    required: true,
+const CampaignSchema = new mongoose.Schema(
+  {
+    advertiser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Advertiser",
+      required: true,
+    },
+    ads: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ad" }],
+    name: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["Active", "Paused", "Ended"],
+      default: "Active",
+    },
+    budget: {
+      type: Number,
+      required: true,
+    },
+    impressions: { type: Number, default: 0 },
+    clicks: { type: Number, default: 0 },
+    conversions: { type: Number, default: 0 },
+    targetAudience: {
+      ageRange: String,
+      interests: [String],
+    },
+    duration: {
+      start: Date,
+      end: Date,
+    },
   },
-  name: {
-    type: String,
-    required: true,
-  },
-  budget: {
-    type: Number,
-    required: true,
-  },
-  targetAudience: {
-    ageRange: String,
-    interests: [String],
-    // Add more targeting options as needed
-  },
-  duration: {
-    start: Date,
-    end: Date,
-  },
-  // Include additional fields that might be relevant to your ad campaigns
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Campaign", CampaignSchema);
