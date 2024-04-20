@@ -7,9 +7,36 @@
  */
 
 // adController.js
-const Placement = require("../models/Placement");
+const Placement = require("../models/AdPlacement");
 const Campaign = require("../models/Campaign");
-const Ad = require("../models/Ad"); // Ensure you've required the Ad model
+const Ad = require("../models/Ad");
+
+// Controller function to handle uploading ad creative
+exports.uploadAdCreative = async (req, res) => {
+  try {
+    const { campaignId } = req.params;
+    const adCreativeFile = req.file; // Assuming the uploaded file is available in req.file
+
+    // Save ad creative file to server or cloud storage
+    // For example, if using a cloud storage service like Amazon S3:
+    // const adCreativeUrl = await saveToS3(adCreativeFile);
+
+    // Associate ad creative with campaign
+    const campaign = await Campaign.findById(campaignId);
+    const newAd = new Ad({ campaign: campaignId, url: adCreativeUrl }); // Assuming adCreativeUrl is the URL of the saved file
+    await newAd.save();
+
+    campaign.ads.push(newAd._id);
+    await campaign.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Ad creative uploaded successfully" });
+  } catch (error) {
+    console.error("Error uploading ad creative:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
 
 // Serve an ad based on zoneId
 exports.serveAd = async (req, res) => {
@@ -20,7 +47,7 @@ exports.serveAd = async (req, res) => {
       status: "active",
     }).populate({
       path: "campaign",
-      populate: { path: "ads" }, // Assuming a campaign has a reference to its ads
+      populate: { path: "ads" },
     });
 
     if (
@@ -42,7 +69,6 @@ exports.serveAd = async (req, res) => {
     // Increment impression for the chosen ad
     await Ad.findByIdAndUpdate(ad._id, { $inc: { impressions: 1 } });
 
-    // Return the chosen ad's content
     res.json({ adContent: ad.content });
   } catch (err) {
     console.error(err);
@@ -50,9 +76,9 @@ exports.serveAd = async (req, res) => {
   }
 };
 
-// Placeholder for collecting clicks - Implementation assumes a specific ad is targeted
+// Collect clicks for an ad
 exports.collectClicks = async (req, res) => {
-  const { adId } = req.body; // Assume adId is passed in the request
+  const { adId } = req.body;
 
   try {
     await Ad.findByIdAndUpdate(adId, { $inc: { clicks: 1 } });
@@ -62,5 +88,3 @@ exports.collectClicks = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
-// The collectImpressions function can be omitted as impressions are collected directly in serveAd function

@@ -1,5 +1,5 @@
 /**
- * placementRoutes.js
+ * adPlacementRoutes.js
  *
  * @author Nestor Nathingo <nessynathingo@gmail.com>
  * @copyright (c) 2024
@@ -12,7 +12,7 @@ const {
   getPlacements,
   updatePlacement,
   deletePlacement,
-} = require("../controllers/placementController");
+} = require("../controllers/adPlacementController");
 const router = express.Router();
 
 router.post("/", createPlacement);

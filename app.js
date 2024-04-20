@@ -34,7 +34,7 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
-app.use(
+app.use(        
   session({
     secret: process.env.SESSION_SECRET, // A secret key for signing the session ID cookie
     resave: false, // Don't save session if unmodified
@@ -78,6 +78,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/users", require("./routes/authRoutes"));
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/ads", require("./routes/adRoutes"));
+app.use("/api/ad-placements", require("./routes/adPlacementRoutes"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

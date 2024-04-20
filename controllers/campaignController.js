@@ -25,11 +25,24 @@ exports.getCampaigns = async (req, res) => {
 // Create a new campaign
 exports.createCampaign = async (req, res) => {
   try {
+    // Extract ad placements from the request body
+    const { adPlacements, ...campaignData } = req.body;
+
     const newCampaign = new Campaign({
-      ...req.body,
+      ...campaignData,
+      // ...req.body,
       advertiser: req.user.id,
+      // adPlacements: adPlacements || [], // Assign ad placements if provided, otherwise default to an empty array
     });
     const campaign = await newCampaign.save();
+
+    // If ad placements are provided, associate them with the campaign
+    if (adPlacements && adPlacements.length > 0) {
+      campaign.adPlacements = adPlacements;
+      await campaign.save();
+    }
+
+    // Return the created campaign
     res.status(201).json(campaign);
   } catch (error) {
     console.error(error);
@@ -40,12 +53,28 @@ exports.createCampaign = async (req, res) => {
 exports.updateCampaign = async (req, res) => {
   const { id } = req.params;
   try {
-    const campaign = await Campaign.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    // Extract ad placements from the request body
+    const { adPlacements, ...updateData } = req.body;
+
+    // Find the campaign by ID
+    let campaign = await Campaign.findById(id);
+
+    // If the campaign doesn't exist, return a 404 error
     if (!campaign) {
       return res.status(404).json({ error: "Campaign not found" });
     }
+
+    // Update the campaign data
+    campaign.set(updateData);
+
+    // If ad placements are provided, update them
+    if (adPlacements && adPlacements.length > 0) {
+      campaign.adPlacements = adPlacements;
+    }
+
+    // Save the updated campaign
+    campaign = await campaign.save();
+
     res.json(campaign);
   } catch (error) {
     console.error(error);
