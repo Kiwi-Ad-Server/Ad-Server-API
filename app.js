@@ -40,6 +40,7 @@ app.use(
     resave: false, // Don't save session if unmodified
     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI_DEV }), // Use MongoDB to store session
     cookie: { secure: process.env.NODE_ENV === "production" }, // Enable secure cookies in production
+    saveUninitialized: false,
   })
 );
 // Use helmet to set various HTTP headers for security

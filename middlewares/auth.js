@@ -8,11 +8,15 @@
 
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
+
+// Middleware to parse cookies from the request
+exports.parseCookies = cookieParser();
 
 // Middleware to validate token and attach user to request
 exports.validateToken = async (req, res, next) => {
-  const token = req.cookies.token; // Read token from HttpOnly cookie
+  const token = req.cookies.token; 
 
   if (!token) {
     return res
