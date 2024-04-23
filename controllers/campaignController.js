@@ -168,14 +168,53 @@ exports.collectImpressions = async (req, res) => {
   }
 };
 
-exports.collectClicks = async (req, res) => {
-  const { adId } = req.body;
+// Fetch clicks data for a campaign
+exports.getCampaignClicks = async (req, res) => {
+  const { campaignId } = req.params;
 
   try {
-    await Ad.findByIdAndUpdate(adId, { $inc: { clicks: 1 } });
-    res.status(200).send("Click recorded");
+    const campaign = await Campaign.findById(campaignId);
+    if (!campaign) {
+      return res.status(404).json({ message: "Campaign not found" });
+    }
+
+    // Return clicks data for the campaign
+    res.json({ clicks: campaign.clicks });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Fetch clicks data for all campaigns
+exports.getAllCampaignClicks = async (req, res) => {
+  try {
+    const campaigns = await Campaign.find({ advertiser: req.user.id });
+    const clicksData = campaigns.map((campaign) => {
+      return {
+        campaignId: campaign._id,
+        clicks: campaign.clicks,
+      };
+    });
+    res.json(clicksData);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Fetch conversion rate data for a campaign
+exports.getCampaignConversionRate = async (req, res) => {
+  const { campaignId } = req.params;
+
+  try {
+    const campaign = await Campaign.findById(campaignId);
+    if (!campaign) {
+      return res.status(404).json({ message: "Campaign not found" });
+    }
+
+    // Calculate conversion rate (for demonstration, you may have your own logic)
+    const conversionRate = (campaign.conversions / campaign.clicks) * 100;
+    res.json({ conversionRate });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
